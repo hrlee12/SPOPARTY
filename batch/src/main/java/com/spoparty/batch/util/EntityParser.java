@@ -1,30 +1,38 @@
 package com.spoparty.batch.util;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.spoparty.batch.dummyData.model.Response;
+import com.spoparty.batch.dummyData.model.Standing;
+import com.spoparty.batch.dummyData.model.StandingLeague;
+import com.spoparty.batch.dummyData.model.StandingResponse;
 import com.spoparty.batch.entity.*;
+import com.spoparty.batch.entity.Fixture;
 import com.spoparty.batch.entity.Team;
-import com.spoparty.batch.repository.SeasonLeagueTeamPlayerRepository;
+import com.spoparty.batch.repository.*;
 import com.spoparty.batch.scheduler.model.*;
 import com.spoparty.batch.scheduler.model.League;
 import com.spoparty.batch.scheduler.model.Player;
 import com.spoparty.batch.scheduler.model.Season;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import com.spoparty.batch.Exception.ApiWrongDataResponseException;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class EntityParser {
 
-	SeasonLeagueTeamPlayerRepository seasonLeagueTeamPlayerRepository;
+	private final SeasonLeagueTeamPlayerRepository seasonLeagueTeamPlayerRepository;
+	private final TeamRepository teamRepository;
+	private final StandingRepository standingRepository;
+	private final SeasonLeagueTeamRepository seasonLeagueTeamRepository;
+	private final FixtureRepository fixtureRepository;
 
 
 	public SeasonLeague seasonLeagueParser(Long seasonLeagueId, LeagueResponse leagueResponse) {
@@ -171,11 +179,12 @@ public class EntityParser {
 				if (beforePlayer.getPlayer().getId() != player.getId()) continue;
 
 				isCatch = true;
+				Long seasonLeagueTeamPlayerId = beforePlayer.getId();
 				beforePlayers.remove(beforePlayer);
 				// 기존의 선수의 정보가 바꼈으면 추가.
 				if (changePlayerInfo(beforePlayer.getPlayer(), player)) {
 
-					changePlayers.add(makeSeasonLeagueTeamPlayer(item, player));
+					changePlayers.add(makeSeasonLeagueTeamPlayer(item, player, seasonLeagueTeamPlayerId));
 
 				}
 
@@ -185,8 +194,9 @@ public class EntityParser {
 
 			if (isCatch) continue;
 
+
 			// 기존 선수중에 선수가 없었다면
-			changePlayers.add(makeSeasonLeagueTeamPlayer(item, player));
+			changePlayers.add(makeSeasonLeagueTeamPlayer(item, player, null));
 
 
 		}
@@ -196,6 +206,101 @@ public class EntityParser {
 		}
 
 		return changePlayers;
+	}
+
+
+
+
+	public List<Standings> standingParser(SeasonLeague item, Response response) {
+		StandingLeague standingLeague = response.getResponse().get(0).getLeague();
+
+		if (standingLeague.getId() != item.getLeague().getId()) {
+			throw new ApiWrongDataResponseException("다른 리그의 순위 정보를 받았습니다.");
+		}
+
+		List<List<Standing>> standingList = standingLeague.getStandings();
+
+		log.info("standingList size" + standingList.size());
+
+
+		List<Standings> result = new ArrayList<>();
+
+
+		for (int i = 0; i < standingList.size(); i++) {
+			List<Standing> standings = standingList.get(i);
+
+
+			for (Standing standing: standings) {
+
+				System.out.println("--------------------------------------------");
+				SeasonLeagueTeam seasonLeagueTeam = seasonLeagueTeamRepository.findByTeam_IdAndSeasonLeague(standing.getTeam().getId(), item);
+
+				Standings beforeStanding = standingRepository.findByGroupAndSeasonLeagueTeam(standing.getGroup(), seasonLeagueTeam);
+
+				Standings afterStanding = null;
+				// 저장되지 않은 정보일 때,
+				if (beforeStanding == null) {
+//					System.out.println("새로운 정보");
+					afterStanding = makeStanding(standing, seasonLeagueTeam, null);
+
+				// 이미 저장된 정보일 때,
+				} else {
+					if (changeStandingInfo(beforeStanding, standing)) {
+					// 내용이 바꼈을 때,
+//					System.out.println("내용 바뀜");
+						afterStanding = makeStanding(standing, seasonLeagueTeam, beforeStanding.getId());
+					} else {
+
+						// 내용이 바뀌지 않았을 땐 null 그대로 두기
+//						System.out.println("내용 안 바뀜 ");
+					}
+				}
+				System.out.println(standing.getGroup() + standing.getTeam().getId());
+				if (afterStanding == null) continue;
+
+				result.add(afterStanding);
+			}
+		}
+
+		return result;
+	}
+
+	public List<Fixture> fixtureParser(SeasonLeague item, FixturesResponse fixturesResponse) {
+
+		List<Fixtures> list = fixturesResponse.getResponse();
+
+		List<Fixture> afterFixtures = new ArrayList<>();
+
+
+		for (Fixtures data : list) {
+
+			SeasonLeagueTeam home = null;
+			SeasonLeagueTeam away = null;
+			LocalDateTime ldt = null;
+			if (data.getTeams().getHome() != null) {
+				home = seasonLeagueTeamRepository.findByTeam_IdAndSeasonLeague(data.getTeams().getHome().getId() * 1L, item);
+			}
+			if (data.getTeams().getAway() != null) {
+				away = seasonLeagueTeamRepository.findByTeam_IdAndSeasonLeague(data.getTeams().getHome().getId() * 1L, item);
+			}
+			if (!data.getFixture().getDate().isEmpty()) {
+				OffsetDateTime odt = OffsetDateTime.parse(data.getFixture().getDate());
+				ldt = odt.toLocalDateTime().plusHours(9);
+			}
+
+			Fixture beforeFixture = fixtureRepository.findById((long)data.getFixture().getId()).orElse(null);
+
+			// 없던 정보일 경우
+			if (beforeFixture == null) {
+				afterFixtures.add(makeFixture(data, item, home, away, ldt));
+			// 기존의 정보이고 정보가 바뀐 경우
+			// 정보가 그대로인 경우 데이터 추가하지 않는다.
+			} else if (changeFixture(beforeFixture, data, ldt)) {
+					afterFixtures.add(makeFixture(data, item, home, away, ldt));
+			}
+		}
+
+		return afterFixtures;
 	}
 
 	private LocalDateTime ToLocalDateTime(String date) {
@@ -242,19 +347,19 @@ public class EntityParser {
 
 	private boolean changePlayerInfo(com.spoparty.batch.entity.Player beforePlayer, Player afterPlayer) {
 		if (beforePlayer.getAge() != afterPlayer.getAge()
-			|| !beforePlayer.getNameKr().equals(afterPlayer.getName())
-			|| !beforePlayer.getNameEng().equals(afterPlayer.getName())
-			|| !beforePlayer.getNationality().equals(afterPlayer.getNationality())
-			|| !beforePlayer.getHeight().equals(afterPlayer.getHeight())
-			|| !beforePlayer.getWeight().equals(afterPlayer.getWeight())
-			|| 	!beforePlayer.getPhoto().equals(afterPlayer.getPhoto()))
+			|| beforePlayer.getNameKr() != null && !beforePlayer.getNameKr().equals(afterPlayer.getName())
+			|| beforePlayer.getNameEng() != null && !beforePlayer.getNameEng().equals(afterPlayer.getName())
+			|| beforePlayer.getNationality() != null && !beforePlayer.getNationality().equals(afterPlayer.getNationality())
+			|| beforePlayer.getHeight() != null && !beforePlayer.getHeight().equals(afterPlayer.getHeight())
+			|| beforePlayer.getWeight() != null && !beforePlayer.getWeight().equals(afterPlayer.getWeight())
+			|| beforePlayer.getPhoto() != null && !beforePlayer.getPhoto().equals(afterPlayer.getPhoto()))
 			return true;
 		else
 			return false;
 	}
 
 
-	private SeasonLeagueTeamPlayer makeSeasonLeagueTeamPlayer(SeasonLeagueTeam item, Player player) {
+	private SeasonLeagueTeamPlayer makeSeasonLeagueTeamPlayer(SeasonLeagueTeam item, Player player, Long SeasonLeagueTeamPlayerId) {
 		com.spoparty.batch.entity.Player newPlayer = com.spoparty.batch.entity.Player.builder()
 				.age(player.getAge())
 				.height(player.getHeight())
@@ -266,11 +371,115 @@ public class EntityParser {
 				.nationality(player.getNationality())
 				.build();
 
-		return SeasonLeagueTeamPlayer.builder()
+		SeasonLeagueTeamPlayer result =  SeasonLeagueTeamPlayer.builder()
 				.seasonLeagueTeam(item)
 				.player(newPlayer)
 				.build();
 
+		if (SeasonLeagueTeamPlayerId != null)
+			result.setId(SeasonLeagueTeamPlayerId);
+
+		return result;
 	}
 
+	private boolean changeStandingInfo(Standings before, Standing after) {
+		if (before.getRank() != after.getRank()
+		|| before.getPoints() != after.getPoints()
+		|| before.getGoalDiff() != after.getGoalsDiff()
+		|| before.getForm() != null && !before.getForm().equals(after.getForm())
+		|| before.getPlayed() != after.getAll().getPlayed()
+		|| before.getWin() != after.getAll().getWin()
+		|| before.getDraw() != after.getAll().getDraw()
+		|| before.getLose() != after.getAll().getLose()
+		|| before.getGoalsFor() != after.getAll().getGoals().get("for")
+		|| before.getGoalsAgainst() != after.getAll().getGoals().get("against")) {
+
+
+			return true;
+		}
+		else {
+			System.out.println("no change!");
+			return false;
+		}
+	}
+
+
+	private Standings makeStanding(Standing standing, SeasonLeagueTeam team, Long standingId) {
+		Standings result = Standings.builder()
+				.goalsAgainst(standing.getAll().getGoals().get("against"))
+				.group(standing.getGroup())
+				.lose(standing.getAll().getLose())
+				.rank(standing.getRank())
+				.points(standing.getPoints())
+				.goalDiff(standing.getGoalsDiff())
+				.form(standing.getForm())
+				.played(standing.getAll().getPlayed())
+				.win(standing.getAll().getWin())
+				.draw(standing.getAll().getDraw())
+				.goalsFor(standing.getAll().getGoals().get("for"))
+				.seasonLeagueTeam(team)
+				.build();
+
+
+		if (standingId != null) {
+			result.setId(standingId);
+		}
+
+		return result;
+	}
+
+
+
+	private boolean changeFixture(Fixture before, Fixtures after, LocalDateTime startTime) {
+
+		int homeGoal = 0;
+		int awayGoal = 0;
+		if (after.getGoals().getHome() !=  null) {
+			homeGoal = Integer.parseInt(after.getGoals().getHome());
+		}
+
+		if (after.getGoals().getAway() !=  null) {
+			awayGoal = Integer.parseInt(after.getGoals().getAway());
+		}
+
+
+		if (before.getStartTime() != null && !before.getStartTime().equals(startTime)
+		|| before.getRoundKr() != null && !before.getRoundKr().equals(after.getLeague().getRound())
+		|| before.getRoundEng() != null && !before.getRoundEng().equals(after.getLeague().getRound())
+		|| before.getHomeTeamGoal() != homeGoal
+		|| before.getAwayTeamGoal() != awayGoal
+		|| before.getStatus() != null && !before.getStatus().equals(after.getFixture().getStatus().get("long")))
+			return true;
+		else
+			return false;
+	}
+
+
+	private Fixture makeFixture(Fixtures after, SeasonLeague seasonLeague, SeasonLeagueTeam home, SeasonLeagueTeam away, LocalDateTime startTime) {
+
+		int homeGoal = 0;
+		int awayGoal = 0;
+		if (after.getGoals().getHome() !=  null) {
+			homeGoal = Integer.parseInt(after.getGoals().getHome());
+		}
+
+		if (after.getGoals().getAway() !=  null) {
+			awayGoal = Integer.parseInt(after.getGoals().getAway());
+		}
+
+
+
+		return Fixture.builder()
+				.id((long)after.getFixture().getId())
+				.startTime(startTime)
+				.roundKr(after.getLeague().getRound())
+				.roundEng(after.getLeague().getRound())
+				.homeTeamGoal(homeGoal)
+				.awayTeamGoal(awayGoal)
+				.status(after.getFixture().getStatus().get("long"))
+				.homeTeam(home)
+				.awayTeam(away)
+				.seasonLeague(seasonLeague)
+				.build();
+	}
 }

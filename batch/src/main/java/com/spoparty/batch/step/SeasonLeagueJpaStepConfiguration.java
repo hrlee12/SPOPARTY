@@ -36,7 +36,8 @@ public class SeasonLeagueJpaStepConfiguration {
 	private final EntityManagerFactory entityManagerFactory;
 	private final FootballApiUtil footballApiUtil;
 
-	private static final int chunkSize = 10;
+	private static final int chunkSize = 3;
+
 	private final EntityParser entityParser;
 
 	@Bean
@@ -53,6 +54,7 @@ public class SeasonLeagueJpaStepConfiguration {
 			.retryLimit(3)
 			.build();
 	}
+
 
 	@Bean
 	public ItemReader<SeasonLeague> seasonLeaguejpaPagingItemReader() {

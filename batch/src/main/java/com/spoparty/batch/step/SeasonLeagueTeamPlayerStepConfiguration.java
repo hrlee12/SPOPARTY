@@ -2,11 +2,14 @@ package com.spoparty.batch.step;
 
 import com.spoparty.batch.Exception.ApiRequestFailedException;
 import com.spoparty.batch.Exception.ApiWrongDataResponseException;
+import com.spoparty.batch.entity.SeasonLeague;
 import com.spoparty.batch.entity.SeasonLeagueTeam;
 import com.spoparty.batch.entity.SeasonLeagueTeamPlayer;
 import com.spoparty.batch.scheduler.model.*;
 import com.spoparty.batch.util.EntityParser;
 import com.spoparty.batch.util.FootballApiUtil;
+import com.spoparty.batch.writer.JpaItemListWriter;
+import com.spoparty.batch.writer.JpaItemListWriterBuilder;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +43,7 @@ public class SeasonLeagueTeamPlayerStepConfiguration {
     private final EntityManagerFactory entityManagerFactory;
     private final FootballApiUtil footballApiUtil;
 
-    private static final int chunkSize = 10;
+    private static final int chunkSize = 3;
     private final EntityParser entityParser;
 
     private final SeasonLeagueTeamJpaStepConfiguration seasonLeagueTeamJpaStepConfiguration;
@@ -49,9 +52,9 @@ public class SeasonLeagueTeamPlayerStepConfiguration {
     public Step seasonLeagueTeamPlayerStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
         return new StepBuilder("jpaPlayerStep", jobRepository)
                 .<SeasonLeagueTeam, List<SeasonLeagueTeamPlayer>>chunk(chunkSize, transactionManager)
-                .reader(seasonLeagueTeamJpaStepConfiguration.seasonLeagueTeamjpaPagingItemReader())
+                .reader(seasonLeagueTeamPlayerjpaPagingItemReader())
                 .processor(seasonLeagueTeamPlayerprocessor())
-                .writer(seasonLeagueTeamPlayerjpaItemWriter())
+                .writer(seasonLeagueTeamPlayerListWriter())
                 .faultTolerant()
                 .retry(ApiRequestFailedException.class)
                 .retry(DataAccessResourceFailureException.class)
@@ -61,6 +64,15 @@ public class SeasonLeagueTeamPlayerStepConfiguration {
     }
 
 
+    @Bean
+    public ItemReader<SeasonLeagueTeam> seasonLeagueTeamPlayerjpaPagingItemReader() {
+        return new JpaPagingItemReaderBuilder<SeasonLeagueTeam>()
+                .name("seasonLeagueTeamjpaPagingReader")
+                .entityManagerFactory(entityManagerFactory)
+                .pageSize(chunkSize)
+                .queryString("SELECT st FROM SeasonLeagueTeam st")
+                .build();
+    }
 
     @Bean
     public ItemProcessor<SeasonLeagueTeam, List<SeasonLeagueTeamPlayer>> seasonLeagueTeamPlayerprocessor() {
@@ -79,7 +91,6 @@ public class SeasonLeagueTeamPlayerStepConfiguration {
                 ResponseEntity response = footballApiUtil.sendRequest("/players", paramsTeam, PlayerResponse.class);
 
 
-
                 if (response.getStatusCode() != HttpStatus.OK ) {
                     throw new ApiRequestFailedException("API 요청에 실패하였습니다.");
                 }
@@ -94,6 +105,7 @@ public class SeasonLeagueTeamPlayerStepConfiguration {
                     players.add(playerInfo.getPlayer());
                 }
 
+                // 다른 페이지의 플레이어 정보도 하나의 리스트에 넣기
                 for (int page = 2; page <= totalPage; page++) {
                     paramsTeam.set("page", String.valueOf(page));
 
@@ -104,29 +116,22 @@ public class SeasonLeagueTeamPlayerStepConfiguration {
                         players.add(playerInfo.getPlayer());
                     }
                 }
-
-
                 return entityParser.seasonLeagueTeamPlayerParser(item, players);
-
 
             }
 
-            ;
+
         };
     }
 
-//    @Bean
-//    public ItemWriter<List<SeasonLeagueTeamPlayer>> seasonLeagueTeamPlayerjpaItemWriter() {
-//        return new JpaItemWriterBuilder<List<SeasonLeagueTeamPlayer>>()
-//                .entityManagerFactory(entityManagerFactory)
-//                .build();
-//    }
-
     @Bean
-    private JpaItemListWriter<SeasonLeagueTeamPlayer> seasonLeagueTeamPlaeryListWriter() {
-        JpaItemWriter<SeasonLeagueTeamPlayer> writer = new JpaItemWriter<>();
-        writer.setEntityManagerFactory(entityManagerFactory);
+    JpaItemListWriter<SeasonLeagueTeamPlayer> seasonLeagueTeamPlayerListWriter() {
 
-        return new JpaItemListWriter<>(writer);
+        JpaItemListWriterBuilder<SeasonLeagueTeamPlayer> builder =  new JpaItemListWriterBuilder<>();
+        builder.entityManagerFactory(entityManagerFactory);
+
+
+        return builder.listWriterbuild();
+
     }
 }

@@ -74,9 +74,14 @@ public class Standings extends FootballBaseEntity {
 	@JoinColumn(name = "season_league_team_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private SeasonLeagueTeam seasonLeagueTeam;
 
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 
 	@Builder
-	public Standings(int rank, int points, int goalDiff, String form, int played, int win, int draw, int lose,
+	public Standings(int rank, int points, int goalDiff,
+		 String form, int played, int win, int draw, int lose,
 		int goalsFor,
 		int goalsAgainst,
 		String group, SeasonLeagueTeam seasonLeagueTeam) {

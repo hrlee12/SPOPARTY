@@ -1,6 +1,7 @@
 package com.spoparty.batch.job;
 
 import com.spoparty.batch.step.SeasonLeagueTeamPlayerStepConfiguration;
+import com.spoparty.batch.step.StandingStepConfiguration;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -18,28 +19,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DataUpdateJobConfiguration {
 
-	private final SeasonLeagueJpaStepConfiguration seasonLeagueJpaStepConfiguration;
-	private final SeasonLeagueTeamPlayerStepConfiguration seasonLeagueTeamPlayerStepConfiguration;
 
 	@Bean
-	public Job jpaJob(JobRepository jobRepository, Step seasonLeagueStep, Step seasonLeagueTeamStep, Step seasonLeagueTeamPlayerStep) {
+	public Job jpaJob(JobRepository jobRepository, Step seasonLeagueStep, Step seasonLeagueTeamStep, Step seasonLeagueTeamPlayerStep, Step standingStep, Step fixtureStep) {
 		return new JobBuilder("jpaJob", jobRepository)
-				.start(seasonLeagueTeamPlayerStep)
-//			.start(seasonLeagueStep)
-//			.next(seasonLeagueTeamStep)
+			.start(seasonLeagueStep)
+			.next(seasonLeagueTeamStep)
+			.next(seasonLeagueTeamPlayerStep)
+			.next(standingStep)
+			.next(fixtureStep)
 			.build();
 	}
 
-	// @Bean
-	// public ItemWriter<SeasonLeague> itemWriter() {
-	// 	return items -> {
-	// 		log.info(">>>>>>>>> ItemWrite");
-	//
-	// 			for (SeasonLeague seasonLeague : items) {
-	// 				log.info("팀 정보 = {}");
-	// 			}
-	//
-	// 	};
-	// }
 
 }

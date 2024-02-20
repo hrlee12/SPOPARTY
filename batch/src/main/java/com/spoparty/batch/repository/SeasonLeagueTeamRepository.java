@@ -2,6 +2,7 @@ package com.spoparty.batch.repository;
 
 import java.util.Optional;
 
+import com.spoparty.batch.entity.SeasonLeague;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,4 +14,6 @@ public interface SeasonLeagueTeamRepository extends JpaRepository<SeasonLeagueTe
 	SeasonLeagueTeam findByTeam(Team team);
 
 	SeasonLeagueTeam findByTeam_Id(Long id);
+
+	SeasonLeagueTeam findByTeam_IdAndSeasonLeague(Long id, SeasonLeague seasonLeague);
 }
