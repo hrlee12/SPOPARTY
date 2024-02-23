@@ -31,13 +31,15 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 @Configuration
-public class seasonLeagueJpaStepConfiguration {
+public class SeasonLeagueJpaStepConfiguration {
 
 	private final EntityManagerFactory entityManagerFactory;
 	private final FootballApiUtil footballApiUtil;
 
-	private static final int chunkSize = 10;
+	private static final int chunkSize = 3;
+
 	private final EntityParser entityParser;
+
 	@Bean
 	@JobScope
 	public Step seasonLeagueStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
@@ -53,9 +55,9 @@ public class seasonLeagueJpaStepConfiguration {
 			.build();
 	}
 
+
 	@Bean
-	public ItemReader<SeasonLeague> seasonLeaguejpaPagingItemReader()
-	{
+	public ItemReader<SeasonLeague> seasonLeaguejpaPagingItemReader() {
 		return new JpaPagingItemReaderBuilder<SeasonLeague>()
 			.name("jpaTestReader")
 			.entityManagerFactory(entityManagerFactory)
@@ -63,7 +65,6 @@ public class seasonLeagueJpaStepConfiguration {
 			.queryString("SELECT sl FROM SeasonLeague sl")
 			.build();
 	}
-
 
 	@Bean
 	public ItemProcessor<SeasonLeague, SeasonLeague> seasonLeagueprocessor() {
@@ -85,7 +86,9 @@ public class seasonLeagueJpaStepConfiguration {
 				}
 				return entityParser.seasonLeagueParser(item.getId(), (LeagueResponse)response.getBody());
 
-			};
+			}
+
+			;
 		};
 	}
 

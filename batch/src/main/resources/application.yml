@@ -8,12 +8,13 @@ spring:
   jpa:
 #    database-platform: mariadb
     hibernate:
+      default_batch_fetch_size: 30
       dialect: org.hibernate.dialect.MySQLDialect
 #      naming:
 #        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.CamelCaseToUnderscoresNamingStrategy
       ddl-auto: none
       jdbc:
-        batch_size: 10
+        batch_size: 50
     properties:
       hibernate:
         format_sql: true
@@ -30,6 +31,8 @@ spring:
 logging:
   level:
     org.hibernate.SQL: INFO
+#    org.hibernate.SQL: debug
 #    org.hibernate.orm.jdbc.bind: trace
+
 
 

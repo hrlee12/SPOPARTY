@@ -84,7 +84,7 @@ public class LoadFootballData {
 	private final FixtureEventRepository fixtureEventRepository;
 
 	// 시즌리그정보로 [팀, 코치, 시즌리그구단] 테이블을 만들어줌
-	// @Scheduled(fixedRate = 1000*60*60*24)
+//	 @Scheduled(fixedRate = 1000*60*60*24)
 	public void loadSLT() {
 
 		List<SeasonLeague> sl = seasonLeagueRepository.findAll();
@@ -141,7 +141,7 @@ public class LoadFootballData {
 						SeasonLeagueTeam saveData = SeasonLeagueTeam.builder()
 							.seasonLeague(seasonLeague)
 							.team(team)
-							.coach(coach)
+							.	coach(coach)
 							.build();
 						log.info("seasonLeagueTeam: {}", saveData);
 						seasonLeagueTeamRepository.save(saveData);
@@ -155,7 +155,7 @@ public class LoadFootballData {
 	}
 
 	// 시즌리그팀 정보로 [선수, 시즌리그구단선수] 테이블을 만듬
-	// @Scheduled(fixedRate = 1000*60*60*24)
+//	 @Scheduled(fixedRate = 1000*60*60*24)
 	public void loadSLTP() {
 
 		List<SeasonLeagueTeam> lis = seasonLeagueTeamRepository.findAll();
