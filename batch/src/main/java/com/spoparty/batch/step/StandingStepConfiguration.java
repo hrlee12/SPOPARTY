@@ -81,7 +81,7 @@ public class StandingStepConfiguration {
             @Override
             public List<Standings> process(SeasonLeague item) throws Exception {
 
-                log.info(">>>>>>>id>>>>>> " + item.getId());
+
 
 //                String leagueId = String.valueOf(item.getLeague().getId());
                 MultiValueMap<String, String> params = new LinkedMultiValueMap<>();

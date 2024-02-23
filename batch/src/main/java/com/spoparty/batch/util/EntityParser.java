@@ -227,7 +227,7 @@ public class EntityParser {
 
 			for (Standing standing: standings) {
 
-				System.out.println("--------------------------------------------");
+
 				SeasonLeagueTeam seasonLeagueTeam = seasonLeagueTeamRepository.findByTeam_IdAndSeasonLeague(standing.getTeam().getId(), item);
 
 				Standings beforeStanding = standingRepository.findByGroupAndSeasonLeagueTeam(standing.getGroup(), seasonLeagueTeam);
@@ -235,14 +235,14 @@ public class EntityParser {
 				Standings afterStanding = null;
 				// 저장되지 않은 정보일 때,
 				if (beforeStanding == null) {
-//					System.out.println("새로운 정보");
+
 					afterStanding = makeStanding(standing, seasonLeagueTeam, null);
 
 				// 이미 저장된 정보일 때,
 				} else {
 					if (changeStandingInfo(beforeStanding, standing)) {
 					// 내용이 바꼈을 때,
-//					System.out.println("내용 바뀜");
+
 						afterStanding = makeStanding(standing, seasonLeagueTeam, beforeStanding.getId());
 					} else {
 
@@ -250,7 +250,7 @@ public class EntityParser {
 //						System.out.println("내용 안 바뀜 ");
 					}
 				}
-				System.out.println(standing.getGroup() + standing.getTeam().getId());
+
 				if (afterStanding == null) continue;
 
 				result.add(afterStanding);
@@ -393,7 +393,7 @@ public class EntityParser {
 			return true;
 		}
 		else {
-			System.out.println("no change!");
+
 			return false;
 		}
 	}

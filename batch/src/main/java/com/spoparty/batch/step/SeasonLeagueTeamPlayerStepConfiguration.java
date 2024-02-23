@@ -80,7 +80,7 @@ public class SeasonLeagueTeamPlayerStepConfiguration {
             @Override
             public List<SeasonLeagueTeamPlayer> process(SeasonLeagueTeam item) throws Exception {
 
-                log.info(">>>>>>>id>>>>>> " + item.getId());
+
 
                 String teamId = String.valueOf(item.getTeam().getId());
                 MultiValueMap<String, String> paramsTeam = new LinkedMultiValueMap<>();
