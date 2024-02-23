@@ -76,7 +76,6 @@ public class SeasonLeagueTeamJpaStepConfiguration {
 			@Override
 			public SeasonLeagueTeam process(SeasonLeagueTeam item) throws Exception {
 
-				System.out.println("--------processor 시작---------");
 
 				System.out.println(" 시즌리그 id >>>>>>>id>>>>>> " + item.getId());
 				System.out.println("팀아이디 : " + item.getTeam().getId());
