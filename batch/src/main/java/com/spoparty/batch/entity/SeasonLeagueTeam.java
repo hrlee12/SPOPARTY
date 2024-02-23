@@ -32,22 +32,22 @@ public class SeasonLeagueTeam extends FootballBaseEntity {
 	@Column(name = "season_league_team_id")
 	private long id;
 
-	@JsonIgnore
+
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "season_league_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private SeasonLeague seasonLeague;
 
-	@JsonIgnore
+
 	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
 	@JoinColumn(name = "team_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Team team;
 
-	@JsonIgnore
+
 	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-	@JoinColumn(name = "coach_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(name = "coach_id", nullable = true, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Coach coach;
 
-	@JsonIgnore
+
 	@OneToMany(mappedBy = "seasonLeagueTeam")
 	private List<Standings> standings = new ArrayList<>();
 

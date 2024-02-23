@@ -28,8 +28,23 @@ public class DataUpdateJobConfiguration {
 			.next(seasonLeagueTeamPlayerStep)
 			.next(standingStep)
 			.next(fixtureStep)
-			.build();
+				.build();
+
+
 	}
 
 
 }
+//	.start(conditionalStep1)
+// 			.on("FAILED") // exit status가 FAILED 일 경우
+// 			.to(conditionalStep3) // Step3으로 이동한다.
+// 			.on("*") // step3의 결과 관계 없이
+// 			.end() // step3으로 이동하면 flow가 종료된다.
+// 		.from(conditionalStep1) // step1로부터
+// 			.on("*") // FAILED 외의 모든 경우
+// 			.to(conditionalStep2) // step2로 이동한다.
+// 			.next(conditionalStep3) // step2가 정상 종료되면 step으로 이동한다.
+// 			.on("*") // step3의 결과 관계 없이
+// 			.end() // step3으로 이동하면 flow가 종료된다.
+// 		.end() // job 종료
+// 		.build();

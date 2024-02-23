@@ -69,7 +69,7 @@ public class StandingStepConfiguration {
     @Bean
     public ItemReader<SeasonLeague> standingSeasonLeaguejpaPagingItemReader() {
         return new JpaPagingItemReaderBuilder<SeasonLeague>()
-                .name("jpaTestReader")
+                .name("leagueJpaPagingReader")
                 .entityManagerFactory(entityManagerFactory)
                 .pageSize(pageSize)
                 .queryString("SELECT sl FROM SeasonLeague sl")
@@ -81,7 +81,7 @@ public class StandingStepConfiguration {
             @Override
             public List<Standings> process(SeasonLeague item) throws Exception {
 
-                log.info(">>>>>>>id>>>>>> " + item.getId());
+
 
 //                String leagueId = String.valueOf(item.getLeague().getId());
                 MultiValueMap<String, String> params = new LinkedMultiValueMap<>();

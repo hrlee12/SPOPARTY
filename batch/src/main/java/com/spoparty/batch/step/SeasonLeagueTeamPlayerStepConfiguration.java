@@ -50,7 +50,7 @@ public class SeasonLeagueTeamPlayerStepConfiguration {
     @Bean
     @JobScope
     public Step seasonLeagueTeamPlayerStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
-        return new StepBuilder("jpaPlayerStep", jobRepository)
+        return new StepBuilder("playerStep", jobRepository)
                 .<SeasonLeagueTeam, List<SeasonLeagueTeamPlayer>>chunk(chunkSize, transactionManager)
                 .reader(seasonLeagueTeamPlayerjpaPagingItemReader())
                 .processor(seasonLeagueTeamPlayerprocessor())
@@ -80,7 +80,7 @@ public class SeasonLeagueTeamPlayerStepConfiguration {
             @Override
             public List<SeasonLeagueTeamPlayer> process(SeasonLeagueTeam item) throws Exception {
 
-                log.info(">>>>>>>id>>>>>> " + item.getId());
+
 
                 String teamId = String.valueOf(item.getTeam().getId());
                 MultiValueMap<String, String> paramsTeam = new LinkedMultiValueMap<>();

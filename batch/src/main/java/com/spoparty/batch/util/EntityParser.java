@@ -78,6 +78,9 @@ public class EntityParser {
 		if (teamResponse == null || coachResponse == null)
 			return null;
 
+
+
+
 		Team beforeTeam = item.getTeam();
 		com.spoparty.batch.scheduler.model.Team teamInfo = teamResponse.getResponse().get(0).getTeam();
 		if (beforeTeam.getId() != teamInfo.getId())
@@ -124,28 +127,17 @@ public class EntityParser {
 
 		// 현재 코치가 없는 경우
 		if (afterCoach == null) {
-			// SeasonLeagueTeam 엔티티에서 coach만 null로 변경한다.
-			// afterSeasonLeagueTeam = SeasonLeagueTeam.builder()
-			// 		.seasonLeague(item.getSeasonLeague())
-			// 		.team(afterTeam)
-			// 		.coach(null)
-			// 		.build();
-			// item.changeCoach(null);
+
 		// 현재 코치가 기존 코치와 동일인물인 경우
 		} else if (item.getCoach().getId() == afterCoach.getId()){
 			// 코치의 세부 정보가 달라졌다면
 			if (changeCoachInfo(item.getCoach(), afterCoach)){
-				// // 엔티티에서 코치 정보 수정.
-				// afterSeasonLeagueTeam = SeasonLeagueTeam.builder()
-				// 	.seasonLeague(item.getSeasonLeague())
-				// 	.team(afterTeam)
-				// 	.coach(afterCoach)
-				// 	.build();
-				//
+
 			// 코치의 세부정보가 그대로라면
 			} else {
 				// 팀도 변경사항이 없다면 전부 그대로이므로 SeasonLeagueTeam 수정하지 않는다.
 				if (!changeTeam)
+
 					return null;
 			}
 			// 현재 코치가 기존 코치와 다른 인물인 경우
@@ -161,11 +153,14 @@ public class EntityParser {
 			.build();
 
 
+
+
 		afterSeasonLeagueTeam.setId(item.getId());
+
+
 		return afterSeasonLeagueTeam;
 
 
-		// return item;
 	}
 
 	public List<SeasonLeagueTeamPlayer> seasonLeagueTeamPlayerParser(SeasonLeagueTeam item, List<Player> players) {
@@ -232,7 +227,7 @@ public class EntityParser {
 
 			for (Standing standing: standings) {
 
-				System.out.println("--------------------------------------------");
+
 				SeasonLeagueTeam seasonLeagueTeam = seasonLeagueTeamRepository.findByTeam_IdAndSeasonLeague(standing.getTeam().getId(), item);
 
 				Standings beforeStanding = standingRepository.findByGroupAndSeasonLeagueTeam(standing.getGroup(), seasonLeagueTeam);
@@ -240,14 +235,14 @@ public class EntityParser {
 				Standings afterStanding = null;
 				// 저장되지 않은 정보일 때,
 				if (beforeStanding == null) {
-//					System.out.println("새로운 정보");
+
 					afterStanding = makeStanding(standing, seasonLeagueTeam, null);
 
 				// 이미 저장된 정보일 때,
 				} else {
 					if (changeStandingInfo(beforeStanding, standing)) {
 					// 내용이 바꼈을 때,
-//					System.out.println("내용 바뀜");
+
 						afterStanding = makeStanding(standing, seasonLeagueTeam, beforeStanding.getId());
 					} else {
 
@@ -255,7 +250,7 @@ public class EntityParser {
 //						System.out.println("내용 안 바뀜 ");
 					}
 				}
-				System.out.println(standing.getGroup() + standing.getTeam().getId());
+
 				if (afterStanding == null) continue;
 
 				result.add(afterStanding);
@@ -398,7 +393,7 @@ public class EntityParser {
 			return true;
 		}
 		else {
-			System.out.println("no change!");
+
 			return false;
 		}
 	}
