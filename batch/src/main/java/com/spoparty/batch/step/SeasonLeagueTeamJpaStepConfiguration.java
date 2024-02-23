@@ -76,8 +76,10 @@ public class SeasonLeagueTeamJpaStepConfiguration {
 			@Override
 			public SeasonLeagueTeam process(SeasonLeagueTeam item) throws Exception {
 
-				log.info(">>>>>>>id>>>>>> " + item.getId());
+				System.out.println("--------processor 시작---------");
 
+				System.out.println(" 시즌리그 id >>>>>>>id>>>>>> " + item.getId());
+				System.out.println("팀아이디 : " + item.getTeam().getId());
 				String teamId = String.valueOf(item.getTeam().getId());
 				MultiValueMap<String, String> paramsTeam = new LinkedMultiValueMap<>();
 				paramsTeam.add("id", teamId);

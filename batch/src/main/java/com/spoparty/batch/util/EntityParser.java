@@ -75,8 +75,12 @@ public class EntityParser {
 	}
 
 	public SeasonLeagueTeam seasonLeagueTeamParser(SeasonLeagueTeam item, TeamResponse teamResponse, CoachResponse coachResponse) {
-		if (teamResponse == null || coachResponse == null)
+		if (teamResponse == null || coachResponse == null) {
+			System.out.println("-----------processor 끝-----");
 			return null;
+		}
+
+
 
 		Team beforeTeam = item.getTeam();
 		com.spoparty.batch.scheduler.model.Team teamInfo = teamResponse.getResponse().get(0).getTeam();
@@ -146,6 +150,7 @@ public class EntityParser {
 			} else {
 				// 팀도 변경사항이 없다면 전부 그대로이므로 SeasonLeagueTeam 수정하지 않는다.
 				if (!changeTeam)
+					System.out.println("-----------processor 끝-----");
 					return null;
 			}
 			// 현재 코치가 기존 코치와 다른 인물인 경우
@@ -161,7 +166,15 @@ public class EntityParser {
 			.build();
 
 
+		System.out.println("저장될 Id : " + item.getId());
+
 		afterSeasonLeagueTeam.setId(item.getId());
+
+		System.out.println("저장된 Id : " + afterSeasonLeagueTeam.getId());
+
+		System.out.println("시즌리그 아이디 : " +  afterSeasonLeagueTeam.getSeasonLeague().getId());
+		System.out.println("팀 아이디      : " + afterSeasonLeagueTeam.getTeam().getId());
+		System.out.println("-----------processor 끝-----");
 		return afterSeasonLeagueTeam;
 
 
