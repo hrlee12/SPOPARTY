@@ -25,6 +25,7 @@
 
 <br/>
 
+
 <div id="1"></div>
 
 ## 💡 서비스 소개
@@ -47,7 +48,7 @@
 <img src="https://img.shields.io/badge/vue.Js-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white" style="height : auto; margin-left : 10px; margin-right : 10px;"/> <img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" style="height : auto; margin-left : 10px; margin-right : 10px;"/> <img src="https://img.shields.io/badge/Node.js-339939?style=for-the-badge&logo=Node.js&logoColor=white" style="height : auto; margin-left : 10px; margin-right : 10px;"/> <br>
 <img src="https://img.shields.io/badge/Jira-0052CC?style=for-the-badge&logo=Jira&logoColor=white" style="height : auto; margin-left : 10px; margin-right : 10px;"/> <img src="https://img.shields.io/badge/GitLab-FCA121?style=for-the-badge&logo=GitLab&logoColor=white" style="height : auto; margin-left : 10px; margin-right : 10px;"/> <br/>
 
-<h3><details><summary><b> 상세 기술스택 및 버전 </b> </summary>
+<h3><details><summary><b> 상세 기술스택 및 버전 (수정 필요) </b> </summary> 
 
 | 구분       | 기술스택            | 상세내용               | 버전      |
 |----------|-----------------|--------------------|---------|
@@ -83,7 +84,7 @@
 
 <div id="3"></div>
 
-## 🗂️ 시스템 아키텍처
+## 🗂️ 시스템 아키텍처 (예시 - 이미지 첨부 필요)
 
 |                 시스템 구성                  |
 |:---------------------------------------:|

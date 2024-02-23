@@ -96,7 +96,7 @@ public class Scheduler {
 	}
 
 	// 경기로 [경기 이벤트] 테이블 생성
-	@Scheduled(fixedRate = 1000*60)
+	// @Scheduled(fixedRate = 1000*60)
 	@Transactional
 	public void loadEvents() {
 

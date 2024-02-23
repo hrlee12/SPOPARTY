@@ -144,7 +144,9 @@ public class dataRequest {
 	public void getStandings() {
 
 
-		String[] leagueIds = new String[]{"140", "78", "292"};
+		// String[] leagueIds = new String[]{"140", "78", "292"};
+
+		String[] leagueIds = new String[]{"39"};
 
 		for (String leagueId : leagueIds) {
 
@@ -165,6 +167,8 @@ public class dataRequest {
 			StandingLeague standingLeague = standingResponses.getResponse().get(0).getLeague();
 			List<List<Standing>> standingList = standingLeague.getStandings();
 			log.info("standingList size " + standingList.size());
+
+
 
 			for (int i = 0; i < standingList.size(); i++) {
 				List<Standing> standings = standingList.get(i);
@@ -194,6 +198,8 @@ public class dataRequest {
 
 					standingRepository.save(entity);
 					log.info(String.valueOf(entity.getRank()));
+
+
 				}
 			}
 
