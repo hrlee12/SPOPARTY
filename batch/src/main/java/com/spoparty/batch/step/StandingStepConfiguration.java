@@ -69,7 +69,7 @@ public class StandingStepConfiguration {
     @Bean
     public ItemReader<SeasonLeague> standingSeasonLeaguejpaPagingItemReader() {
         return new JpaPagingItemReaderBuilder<SeasonLeague>()
-                .name("jpaTestReader")
+                .name("leagueJpaPagingReader")
                 .entityManagerFactory(entityManagerFactory)
                 .pageSize(pageSize)
                 .queryString("SELECT sl FROM SeasonLeague sl")
