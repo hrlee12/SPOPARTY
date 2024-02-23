@@ -21,7 +21,7 @@ public class BatchScheduler {
 	private final JobLauncher jobLauncher;
 	private final Job job;
 
-	 @Scheduled(cron = "0 0 12 * * *")
+//	 @Scheduled(cron = "0 0 12 * * *")
 	public void runJOb() throws Exception {
 		JobParameters parameters = new JobParametersBuilder()
 			.addString("jobName",  "jpaTest " + LocalDateTime.now())
