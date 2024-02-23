@@ -43,7 +43,7 @@ public class SeasonLeagueJpaStepConfiguration {
 	@Bean
 	@JobScope
 	public Step seasonLeagueStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
-		return new StepBuilder("jpaStep", jobRepository)
+		return new StepBuilder("leagueStep", jobRepository)
 			.<SeasonLeague, SeasonLeague>chunk(chunkSize, transactionManager)
 			.reader(seasonLeaguejpaPagingItemReader())
 			.processor(seasonLeagueprocessor())
@@ -59,7 +59,7 @@ public class SeasonLeagueJpaStepConfiguration {
 	@Bean
 	public ItemReader<SeasonLeague> seasonLeaguejpaPagingItemReader() {
 		return new JpaPagingItemReaderBuilder<SeasonLeague>()
-			.name("jpaTestReader")
+			.name("leagueJpaPagingReader")
 			.entityManagerFactory(entityManagerFactory)
 			.pageSize(chunkSize)
 			.queryString("SELECT sl FROM SeasonLeague sl")

@@ -50,7 +50,7 @@ public class SeasonLeagueTeamPlayerStepConfiguration {
     @Bean
     @JobScope
     public Step seasonLeagueTeamPlayerStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
-        return new StepBuilder("jpaPlayerStep", jobRepository)
+        return new StepBuilder("playerStep", jobRepository)
                 .<SeasonLeagueTeam, List<SeasonLeagueTeamPlayer>>chunk(chunkSize, transactionManager)
                 .reader(seasonLeagueTeamPlayerjpaPagingItemReader())
                 .processor(seasonLeagueTeamPlayerprocessor())

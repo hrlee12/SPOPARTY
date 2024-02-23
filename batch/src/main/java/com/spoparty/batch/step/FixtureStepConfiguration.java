@@ -51,7 +51,7 @@ public class FixtureStepConfiguration {
     @Bean
     @JobScope
     public Step fixtureStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
-        return new StepBuilder("standingStep", jobRepository)
+        return new StepBuilder("fixtureStep", jobRepository)
                 .<SeasonLeague, List<Fixture>>chunk(chunkSize, transactionManager)
                 .reader(fixtureSeasonLeaguejpaPagingItemReader())
                 .processor(fixtureProcessor())
@@ -67,7 +67,7 @@ public class FixtureStepConfiguration {
     @Bean
     public ItemReader<SeasonLeague> fixtureSeasonLeaguejpaPagingItemReader() {
         return new JpaPagingItemReaderBuilder<SeasonLeague>()
-                .name("jpaTestReader")
+                .name("leagueJpaPagingReader")
                 .entityManagerFactory(entityManagerFactory)
                 .pageSize(chunkSize)
                 .queryString("SELECT sl FROM SeasonLeague sl")
