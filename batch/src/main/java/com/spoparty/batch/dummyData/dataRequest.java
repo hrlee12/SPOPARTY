@@ -140,13 +140,13 @@ public class dataRequest {
 		// System.out.println("end");
 	}
 
-	// @Scheduled(fixedRate=3000000)
+//	 @Scheduled(fixedRate=3000000)
 	public void getStandings() {
 
 
 		// String[] leagueIds = new String[]{"140", "78", "292"};
 
-		String[] leagueIds = new String[]{"39"};
+		String[] leagueIds = new String[]{"140", "78", "292", "39"};
 
 		for (String leagueId : leagueIds) {
 
